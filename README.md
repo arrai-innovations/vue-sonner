@@ -21,6 +21,17 @@ substantially, and several bugs we rely on fixes for have open reports with no m
 forked rather than work around these issues indefinitely in consumer CSS/JS, so the fixes live at the
 source instead.
 
+Changes from upstream `v2.0.9`:
+
+- **Hover/collapse flicker fix**: dismissing a toast (or the toast count otherwise dropping to one or
+  zero) while the pointer rests over the stack could make the browser fire a spurious native
+  `mouseleave` on the departing/resized node, immediately followed by a `mouseenter` once layout
+  settled -- even though the pointer never moved. `Toaster.vue` treated that `mouseleave` as a real
+  departure and collapsed the stack, then re-expanded it on the next event, producing a visible
+  flicker. Collapsing is now debounced: a short timer is scheduled instead of applied immediately, and
+  any subsequent `mouseenter`/`mousemove` on that position cancels it before it fires. A real departure
+  (the timer elapses with no re-entry) still collapses the stack as before.
+
 We intend to track upstream and periodically rebase/merge in new fixes; this fork is not a permanent
 divergence. If upstream resumes active maintenance and picks up equivalent fixes, we'd rather go back
 to depending on it directly.

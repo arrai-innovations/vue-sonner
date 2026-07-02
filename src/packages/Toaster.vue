@@ -133,6 +133,7 @@ function getDocumentDirection(): ToasterProps['dir'] {
 import {
   computed,
   nextTick,
+  onScopeDispose,
   ref,
   useAttrs,
   watch,
@@ -215,6 +216,27 @@ const toastsByPosition = computed(() => {
 const heights = ref<HeightT[]>([])
 const expanded = ref<Record<string, boolean>>({})
 const interacting = ref(false)
+// Collapsing a position is debounced rather than immediate: removing a toast under a
+// stationary pointer fires a real mouseleave on the node once its exit animation shifts it
+// out from under the cursor, followed by a compensating mouseenter once layout resettles and
+// the browser re-hits-tests that point -- even though the user never actually moved. The gap
+// between those two events tracks the toast's removal delay (TIME_BEFORE_UNMOUNT), so the
+// debounce window has to comfortably outlast it or the collapse fires before the compensating
+// mouseenter arrives to cancel it, producing a visible collapse-then-re-expand pop.
+const COLLAPSE_DEBOUNCE_MS = TIME_BEFORE_UNMOUNT + 150
+const collapseTimers: Record<string, ReturnType<typeof setTimeout>> = {}
+function scheduleCollapse(position: string) {
+  clearTimeout(collapseTimers[position])
+  collapseTimers[position] = setTimeout(() => {
+    expanded.value[position] = false
+  }, COLLAPSE_DEBOUNCE_MS)
+}
+function cancelCollapse(position: string) {
+  clearTimeout(collapseTimers[position])
+}
+onScopeDispose(() => {
+  Object.values(collapseTimers).forEach(clearTimeout)
+})
 
 // Initialize expanded state for each position
 watchEffect(() => {
@@ -396,11 +418,13 @@ watchEffect(() => {
 })
 
 watchEffect(() => {
-  // Ensure expanded is always false when no toasts are present / only one left
+  // Ensure expanded is always false when no toasts are present / only one left. Debounced
+  // like the mouseleave-driven collapse below: dropping to the last toast is itself often
+  // *caused by* a dismiss under the pointer, which can trigger a spurious native mouseleave
+  // on the departing node. Collapsing immediately here raced that same flicker.
   if (toasts.value.length <= 1) {
-    // Reset all positions to false
     Object.keys(expanded.value).forEach(pos => {
-      expanded.value[pos] = false
+      scheduleCollapse(pos)
     })
   }
 })
@@ -418,6 +442,7 @@ watchEffect((onInvalidate) => {
     if (isHotkeyPressed) {
       // Expand all positions when hotkey is pressed
       possiblePositions.value.forEach(pos => {
+        cancelCollapse(pos)
         expanded.value[pos] = true
       })
       listRefItem?.focus()
@@ -430,6 +455,7 @@ watchEffect((onInvalidate) => {
     if (event.code === 'Escape' && isItemActive) {
       // Collapse all positions when escape is pressed
       possiblePositions.value.forEach(pos => {
+        cancelCollapse(pos)
         expanded.value[pos] = false
       })
     }
@@ -444,21 +470,24 @@ watchEffect((onInvalidate) => {
   })
 })
 
-function handleMouseEnter(event: MouseEvent) { 
+function handleMouseEnter(event: MouseEvent) {
   const target = event.currentTarget as HTMLElement
   const position = target.getAttribute('data-y-position') + '-' + target.getAttribute('data-x-position')
-  expanded.value[position] = true 
+  cancelCollapse(position)
+  expanded.value[position] = true
 }
-function handleMouseLeave(event: MouseEvent) { 
+function handleMouseLeave(event: MouseEvent) {
+  const target = event.currentTarget as HTMLElement
+  const position = target.getAttribute('data-y-position') + '-' + target.getAttribute('data-x-position')
   if (!interacting.value) {
-    const target = event.currentTarget as HTMLElement
-    const position = target.getAttribute('data-y-position') + '-' + target.getAttribute('data-x-position')
-    expanded.value[position] = false 
+    scheduleCollapse(position)
   }
 }
-function handleDragEnd() { 
-  // Reset all positions to false when drag ends
+function handleDragEnd() {
+  // Reset all positions to false when drag ends -- a deliberate user action, not a layout
+  // side effect, so this collapse is intentionally immediate rather than debounced.
   Object.keys(expanded.value).forEach(pos => {
+    cancelCollapse(pos)
     expanded.value[pos] = false
   })
 }
