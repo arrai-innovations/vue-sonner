@@ -1,3 +1,13 @@
+## Post-fork Releases
+
+### 2.0.10
+
+#### Bug Fixes
+
+* debounce hover-driven collapse of the toast stack to stop a collapse/re-expand flicker when a toast is dismissed under the pointer
+
+## Pre-fork Releases
+
 ## [2.0.9](https://github.com/xiaoluoboding/vue-sonner/compare/v2.0.8...v2.0.9) (2025-10-01)
 
 

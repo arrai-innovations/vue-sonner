@@ -1,12 +1,15 @@
 {
   "name": "@arrai-innovations/vue-sonner",
   "type": "module",
-  "version": "2.0.9",
+  "version": "2.0.10",
   "packageManager": "pnpm@10.11.0",
-  "author": "xiaoluoboding <xiaoluoboding@gmail.com>",
+  "author": "Arrai Innovations <developers@arrai.com>",
   "contributors": [
-    "Arrai Innovations <https://github.com/arrai-innovations>"
+    "xiaoluoboding <xiaoluoboding@gmail.com>"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "homepage": "https://github.com/arrai-innovations/vue-sonner",
   "repository": {
