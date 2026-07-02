@@ -11,6 +11,20 @@
 [bundlePhobiaBadge]: https://img.shields.io/bundlephobia/minzip/vue-sonner
 [bundlePhobiaUrl]: https://bundlephobia.com/package/vue-sonner@latest
 
+## `@arrai-innovations/vue-sonner`
+
+This is a fork of [`xiaoluoboding/vue-sonner`](https://github.com/xiaoluoboding/vue-sonner), maintained
+by [Arrai Innovations](https://github.com/arrai-innovations) for use in [VUEDA](https://github.com/arrai-innovations/vueda).
+
+Upstream has been effectively unmaintained since its `v2.0.9` release: PR/issue throughput has slowed
+substantially, and several bugs we rely on fixes for have open reports with no maintainer response. We
+forked rather than work around these issues indefinitely in consumer CSS/JS, so the fixes live at the
+source instead.
+
+We intend to track upstream and periodically rebase/merge in new fixes; this fork is not a permanent
+divergence. If upstream resumes active maintenance and picks up equivalent fixes, we'd rather go back
+to depending on it directly.
+
 > An opinionated toast component for Vue. It's a Vue port of Sonner
 
 ## Preview

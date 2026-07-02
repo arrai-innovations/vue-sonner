@@ -1,14 +1,17 @@
 {
-  "name": "vue-sonner",
+  "name": "@arrai-innovations/vue-sonner",
   "type": "module",
   "version": "2.0.9",
   "packageManager": "pnpm@10.11.0",
   "author": "xiaoluoboding <xiaoluoboding@gmail.com>",
+  "contributors": [
+    "Arrai Innovations <https://github.com/arrai-innovations>"
+  ],
   "license": "MIT",
-  "homepage": "https://github.com/xiaoluoboding/vue-sonner",
+  "homepage": "https://github.com/arrai-innovations/vue-sonner",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xiaoluoboding/vue-sonner.git"
+    "url": "git+https://github.com/arrai-innovations/vue-sonner.git"
   },
   "sideEffects": [
     "**/*.css",
